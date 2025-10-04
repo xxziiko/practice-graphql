@@ -1,112 +1,40 @@
-import { useQuery, useMutation } from '@apollo/client';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { GET_TODOS } from '../graphql/queries';
-import { TOGGLE_TODO, DELETE_TODO } from '../graphql/mutations';
-import type {
-  Query,
-  ToggleTodo,
-  ToggleTodoVariables,
-  DeleteTodo,
-  DeleteTodoVariables,
-} from '../graphql/__generated__/graphqlType';
-import {
-  todoFilterState,
-  searchKeywordState,
-  selectedTodoIdState,
-} from '../recoil/atoms/todoAtoms';
-import { filterStatsState } from '../recoil/selectors/todoSelectors';
+import { useTodoList } from '../hooks/useTodoList';
 
 /**
  * Recoil + GraphQL 통합 컴포넌트
  *
  * 실무 패턴:
+ * - 커스텀 훅으로 비즈니스 로직 분리
+ * - 컴포넌트는 UI 렌더링에만 집중
  * - GraphQL: 서버 데이터 관리 (todos 목록)
  * - Recoil: 클라이언트 상태 관리 (필터, 검색어, 선택 등)
  */
 export default function TodoListWithRecoil() {
-  // ═══════════════════════════════════════════════════════════
-  // 1. GraphQL: 서버 데이터 조회
-  // ═══════════════════════════════════════════════════════════
-  const { loading, error, data } = useQuery<Pick<Query, 'todos'>>(GET_TODOS);
+  const {
+    // 데이터
+    loading,
+    error,
+    filteredTodos,
 
-  const [toggleTodo] = useMutation<ToggleTodo, ToggleTodoVariables>(
-    TOGGLE_TODO
-  );
+    // Recoil 상태
+    filter,
+    searchKeyword,
+    selectedTodoId,
+    filterStats,
 
-  const [deleteTodo] = useMutation<DeleteTodo, DeleteTodoVariables>(
-    DELETE_TODO,
-    {
-      refetchQueries: [{ query: GET_TODOS }],
-    }
-  );
+    // 상태 업데이트 함수
+    setFilter,
+    setSearchKeyword,
 
-  // ═══════════════════════════════════════════════════════════
-  // 2. Recoil: 클라이언트 상태 관리
-  // ═══════════════════════════════════════════════════════════
+    // 이벤트 핸들러
+    handleToggle,
+    handleDelete,
+    handleSelect,
 
-  /**
-   * useRecoilState: atom 읽기 + 쓰기 (useState와 동일)
-   */
-  const [filter, setFilter] = useRecoilState(todoFilterState);
-  const [searchKeyword, setSearchKeyword] = useRecoilState(searchKeywordState);
-
-  /**
-   * useRecoilValue: atom/selector 읽기만 (값만 필요할 때)
-   */
-  const filterStats = useRecoilValue(filterStatsState);
-
-  /**
-   * useSetRecoilState: atom 쓰기만 (setter만 필요할 때)
-   */
-  const setSelectedTodoId = useSetRecoilState(selectedTodoIdState);
-
-  // ═══════════════════════════════════════════════════════════
-  // 3. 비즈니스 로직
-  // ═══════════════════════════════════════════════════════════
-
-  const handleToggle = async (id: string) => {
-    try {
-      await toggleTodo({ variables: { id } });
-    } catch (error) {
-      console.error('TODO 토글 실패:', error);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteTodo({ variables: { id } });
-    } catch (error) {
-      console.error('TODO 삭제 실패:', error);
-    }
-  };
-
-  const handleSelect = (id: string) => {
-    setSelectedTodoId(id);
-    console.log('선택된 Todo ID:', id);
-  };
-
-  // ═══════════════════════════════════════════════════════════
-  // 4. 데이터 필터링 (Recoil 상태 기반)
-  // ═══════════════════════════════════════════════════════════
-
-  const filteredTodos = data?.todos.filter((todo) => {
-    // 검색어 필터링
-    if (searchKeyword.trim()) {
-      const matchesSearch = todo.title
-        .toLowerCase()
-        .includes(searchKeyword.toLowerCase());
-      if (!matchesSearch) return false;
-    }
-
-    // 완료 상태 필터링
-    if (filter === 'active') return !todo.completed;
-    if (filter === 'completed') return todo.completed;
-    return true; // 'all'
-  });
-
-  // ═══════════════════════════════════════════════════════════
-  // 5. UI 렌더링
-  // ═══════════════════════════════════════════════════════════
+    // 계산된 값들
+    totalCount,
+    filteredCount,
+  } = useTodoList();
 
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>에러 발생: {error.message}</p>;
@@ -129,7 +57,7 @@ export default function TodoListWithRecoil() {
           <input
             type="text"
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
+            onChange={e => setSearchKeyword(e.target.value)}
             placeholder="할일 검색..."
             style={{
               marginLeft: '10px',
@@ -188,77 +116,129 @@ export default function TodoListWithRecoil() {
         </div>
 
         <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-          현재 보기: <strong>{filterStats.displayText}</strong> (
-          {filteredTodos?.length || 0}개)
+          현재 보기: <strong>{filterStats.displayText}</strong> ({filteredCount}
+          개)
         </div>
       </div>
 
       {/* Todo 목록 */}
-      {filteredTodos?.length === 0 ? (
+      {filteredTodos.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#999' }}>
-          {searchKeyword
-            ? '검색 결과가 없습니다.'
-            : '할일이 없습니다.'}
+          {searchKeyword ? '검색 결과가 없습니다.' : '할일이 없습니다.'}
         </p>
       ) : (
-        filteredTodos?.map((todo) => (
-          <div
-            key={todo.id}
-            onClick={() => handleSelect(todo.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '10px',
-              border: '1px solid #ddd',
-              marginBottom: '10px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              backgroundColor: 'white',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = '#f9f9f9')
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = 'white')
-            }
-          >
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={(e) => {
-                e.stopPropagation();
-                handleToggle(todo.id);
-              }}
-              style={{ marginRight: '10px' }}
-            />
-            <span
+        filteredTodos.map(todo => {
+          const isSelected = selectedTodoId === todo.id;
+
+          return (
+            <div
+              key={todo.id}
+              onClick={() => handleSelect(todo.id)}
               style={{
-                flex: 1,
-                textDecoration: todo.completed ? 'line-through' : 'none',
-                opacity: todo.completed ? 0.6 : 1,
-              }}
-            >
-              {todo.title}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(todo.id);
-              }}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '10px',
+                border: isSelected ? '2px solid #007bff' : '1px solid #ddd',
+                marginBottom: '10px',
                 borderRadius: '4px',
                 cursor: 'pointer',
+                backgroundColor: isSelected ? '#e3f2fd' : 'white',
+                transition: 'all 0.2s ease',
+                transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                boxShadow: isSelected
+                  ? '0 2px 8px rgba(0, 123, 255, 0.2)'
+                  : 'none',
+              }}
+              onMouseEnter={e => {
+                if (!isSelected) {
+                  e.currentTarget.style.backgroundColor = '#f9f9f9';
+                }
+              }}
+              onMouseLeave={e => {
+                if (!isSelected) {
+                  e.currentTarget.style.backgroundColor = 'white';
+                }
               }}
             >
-              삭제
-            </button>
-          </div>
-        ))
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={e => {
+                  e.stopPropagation();
+                  handleToggle(todo.id);
+                }}
+                style={{ marginRight: '10px' }}
+              />
+              <span
+                style={{
+                  flex: 1,
+                  textDecoration: todo.completed ? 'line-through' : 'none',
+                  opacity: todo.completed ? 0.6 : 1,
+                }}
+              >
+                {todo.title}
+              </span>
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleDelete(todo.id);
+                }}
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          );
+        })
+      )}
+
+      {/* 선택된 Todo 정보 표시 */}
+      {selectedTodoId && (
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '15px',
+            backgroundColor: '#e3f2fd',
+            border: '1px solid #007bff',
+            borderRadius: '8px',
+          }}
+        >
+          <h4 style={{ margin: '0 0 10px 0', color: '#007bff' }}>
+            🎯 선택된 Todo
+          </h4>
+          <p style={{ margin: 0, fontSize: '14px' }}>
+            <strong>ID:</strong> {selectedTodoId}
+          </p>
+          {(() => {
+            const selectedTodo = filteredTodos.find(
+              todo => todo.id === selectedTodoId
+            );
+            return selectedTodo ? (
+              <>
+                <p style={{ margin: '5px 0 0 0', fontSize: '14px' }}>
+                  <strong>제목:</strong> {selectedTodo.title}
+                </p>
+                <p style={{ margin: '5px 0 0 0', fontSize: '14px' }}>
+                  <strong>완료 상태:</strong>{' '}
+                  {selectedTodo.completed ? '✅ 완료' : '⏳ 진행 중'}
+                </p>
+              </>
+            ) : (
+              <p
+                style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#666' }}
+              >
+                선택된 todo가 필터링에서 제외되었습니다.
+              </p>
+            );
+          })()}
+        </div>
       )}
 
       {/* Recoil 상태 디버깅 */}
@@ -277,8 +257,8 @@ export default function TodoListWithRecoil() {
               filter,
               searchKeyword,
               filterStats,
-              totalTodos: data?.todos.length,
-              filteredCount: filteredTodos?.length,
+              totalTodos: totalCount,
+              filteredCount: filteredCount,
             },
             null,
             2

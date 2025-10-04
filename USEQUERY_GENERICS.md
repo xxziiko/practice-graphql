@@ -15,7 +15,7 @@
 ## 기본 구조
 
 ```typescript
-useQuery<TData, TVariables>(query, options)
+useQuery<TData, TVariables>(query, options);
 //       ↑       ↑
 //       |       └─ 두 번째: Variables 타입 (선택)
 //       └───────── 첫 번째: Response 타입 (필수)
@@ -38,8 +38,8 @@ function useQuery<TData = any, TVariables = OperationVariables>(
 
 ```typescript
 const { loading, error, data } = useQuery<
-  Pick<Query, 'recommendProducts'>,        // 👈 첫 번째 제네릭
-  additionalRecommendProductsVariables     // 👈 두 번째 제네릭
+  Pick<Query, 'recommendProducts'>, // 👈 첫 번째 제네릭
+  additionalRecommendProductsVariables // 👈 두 번째 제네릭
 >(ADDITIONAL_RECOMMEND_PRODUCTS, {
   variables: {
     kind: kind || 'LessPrice',
@@ -56,7 +56,7 @@ const { loading, error, data } = useQuery<
 **역할**: **서버에서 받을 응답 데이터의 타입**
 
 ```typescript
-Pick<Query, 'recommendProducts'>
+Pick<Query, 'recommendProducts'>;
 ```
 
 #### 왜 Pick을 쓰나?
@@ -80,6 +80,7 @@ Pick<Query, 'recommendProducts'>
 ```
 
 **장점:**
+
 - ✅ Query 전체가 아닌 **특정 필드만** 선택
 - ✅ 어떤 GraphQL 필드를 사용하는지 **명확히 표현**
 - ✅ 코드 **가독성 향상**
@@ -102,7 +103,7 @@ data.otherField         // ❌ 타입 에러!
 **역할**: **요청 시 전달할 변수의 타입**
 
 ```typescript
-additionalRecommendProductsVariables
+additionalRecommendProductsVariables;
 ```
 
 #### Codegen이 자동 생성한 타입
@@ -116,7 +117,7 @@ export type additionalRecommendProductsVariables = Exact<{
 // 실제 타입
 type additionalRecommendProductsVariables = {
   kind: string;
-}
+};
 ```
 
 #### variables 객체 타입 체크
@@ -124,13 +125,14 @@ type additionalRecommendProductsVariables = {
 ```typescript
 useQuery<TData, additionalRecommendProductsVariables>(QUERY, {
   variables: {
-    kind: 'LessPrice',     // ✅ 타입 체크 통과
+    kind: 'LessPrice', // ✅ 타입 체크 통과
     // wrongField: 'test'  // ❌ 타입 에러 발생!
-  }
+  },
 });
 ```
 
 **장점:**
+
 - ✅ 변수 오타 방지
 - ✅ 필수 변수 누락 방지
 - ✅ IDE 자동완성 지원
@@ -189,12 +191,12 @@ query GetTodo($id: ID!) {
 
 ```typescript
 const { loading, error, data } = useQuery<
-  Pick<Query, 'todo'>,     // 👈 Response 타입
-  GetTodoVariables         // 👈 Variables 타입
+  Pick<Query, 'todo'>, // 👈 Response 타입
+  GetTodoVariables // 👈 Variables 타입
 >(GET_TODO, {
   variables: {
-    id: todoId             // ✅ 타입 체크됨
-  }
+    id: todoId, // ✅ 타입 체크됨
+  },
 });
 ```
 
@@ -208,7 +210,7 @@ export type GetTodoVariables = Exact<{
 // 실제 타입
 type GetTodoVariables = {
   id: string;
-}
+};
 ```
 
 ---
@@ -245,11 +247,11 @@ const { loading, error, data } = useQuery<
   SearchProductsVariables
 >(SEARCH_PRODUCTS, {
   variables: {
-    keyword: searchTerm,        // ✅ 필수 (String!)
+    keyword: searchTerm, // ✅ 필수 (String!)
     category: selectedCategory, // ✅ 선택 (String)
-    minPrice: 10000,            // ✅ 선택 (Int)
-    maxPrice: 50000,            // ✅ 선택 (Int)
-  }
+    minPrice: 10000, // ✅ 선택 (Int)
+    maxPrice: 50000, // ✅ 선택 (Int)
+  },
 });
 ```
 
@@ -387,13 +389,13 @@ export default function ProductSearch() {
 
 ### 현재 프로젝트 vs 실무 코드
 
-| 항목 | 현재 프로젝트 | 실무 코드 |
-|------|--------------|----------|
-| **Query** | `GET_TODOS` (변수 없음) | `ADDITIONAL_RECOMMEND_PRODUCTS` (변수 있음) |
-| **제네릭 개수** | 1개 | 2개 |
-| **Response 타입** | `Pick<Query, 'todos'>` | `Pick<Query, 'recommendProducts'>` |
-| **Variables 타입** | ❌ 없음 | ✅ `additionalRecommendProductsVariables` |
-| **variables 옵션** | ❌ 없음 | ✅ `{ kind: 'LessPrice' }` |
+| 항목               | 현재 프로젝트           | 실무 코드                                   |
+| ------------------ | ----------------------- | ------------------------------------------- |
+| **Query**          | `GET_TODOS` (변수 없음) | `ADDITIONAL_RECOMMEND_PRODUCTS` (변수 있음) |
+| **제네릭 개수**    | 1개                     | 2개                                         |
+| **Response 타입**  | `Pick<Query, 'todos'>`  | `Pick<Query, 'recommendProducts'>`          |
+| **Variables 타입** | ❌ 없음                 | ✅ `additionalRecommendProductsVariables`   |
+| **variables 옵션** | ❌ 없음                 | ✅ `{ kind: 'LessPrice' }`                  |
 
 ### 코드 비교
 
@@ -406,7 +408,7 @@ const { data } = useQuery<
   Pick<Query, 'recommendProducts'>,
   additionalRecommendProductsVariables
 >(ADDITIONAL_RECOMMEND_PRODUCTS, {
-  variables: { kind: 'LessPrice' }
+  variables: { kind: 'LessPrice' },
 });
 ```
 
@@ -420,28 +422,25 @@ const { data } = useQuery<
 const { data } = useQuery(GET_TODO, {
   variables: {
     id: '123',
-    wrongField: 'test',  // ❌ 에러 감지 안 됨
-  }
+    wrongField: 'test', // ❌ 에러 감지 안 됨
+  },
 });
 
-data.todo.wrongField;    // ❌ 에러 감지 안 됨
+data.todo.wrongField; // ❌ 에러 감지 안 됨
 ```
 
 ### ✅ 타입과 함께 사용 (실무 표준)
 
 ```typescript
-const { data } = useQuery<
-  Pick<Query, 'todo'>,
-  GetTodoVariables
->(GET_TODO, {
+const { data } = useQuery<Pick<Query, 'todo'>, GetTodoVariables>(GET_TODO, {
   variables: {
     id: '123',
     // wrongField: 'test',  // ✅ 타입 에러 발생!
-  }
+  },
 });
 
 // data.todo.wrongField;    // ✅ 타입 에러 발생!
-data.todo.title;            // ✅ 정상 동작
+data.todo.title; // ✅ 정상 동작
 ```
 
 ---
@@ -455,10 +454,9 @@ data.todo.title;            // ✅ 정상 동작
 const { data } = useQuery(GET_USER, { variables: { id: '123' } });
 
 // ✅ 좋음
-const { data } = useQuery<Pick<Query, 'user'>, GetUserVariables>(
-  GET_USER,
-  { variables: { id: '123' } }
-);
+const { data } = useQuery<Pick<Query, 'user'>, GetUserVariables>(GET_USER, {
+  variables: { id: '123' },
+});
 ```
 
 ### 2. Pick 패턴 일관성 유지
@@ -475,26 +473,23 @@ const { data } = useQuery<Pick<Query, 'user'>>(GET_USER);
 
 ```typescript
 // Variables가 모두 optional인 경우
-const { data } = useQuery<
-  Pick<Query, 'products'>,
-  GetProductsVariables
->(GET_PRODUCTS, {
-  variables: {
-    category: selectedCategory,  // undefined 가능
-  },
-});
+const { data } = useQuery<Pick<Query, 'products'>, GetProductsVariables>(
+  GET_PRODUCTS,
+  {
+    variables: {
+      category: selectedCategory, // undefined 가능
+    },
+  }
+);
 ```
 
 ### 4. skip 옵션 활용
 
 ```typescript
-const { data } = useQuery<Pick<Query, 'user'>, GetUserVariables>(
-  GET_USER,
-  {
-    variables: { id: userId },
-    skip: !userId,  // userId가 없으면 요청 안 함
-  }
-);
+const { data } = useQuery<Pick<Query, 'user'>, GetUserVariables>(GET_USER, {
+  variables: { id: userId },
+  skip: !userId, // userId가 없으면 요청 안 함
+});
 ```
 
 ---
@@ -504,13 +499,13 @@ const { data } = useQuery<Pick<Query, 'user'>, GetUserVariables>(
 ### useQuery 제네릭 구조
 
 ```typescript
-useQuery<TData, TVariables>(query, options)
+useQuery<TData, TVariables>(query, options);
 ```
 
-| 제네릭 | 의미 | 예시 | 필수 여부 |
-|--------|------|------|----------|
-| **TData** | Response 타입 | `Pick<Query, 'todos'>` | 필수 (권장) |
-| **TVariables** | Variables 타입 | `GetTodosVariables` | 선택 (변수 있으면 필수) |
+| 제네릭         | 의미           | 예시                   | 필수 여부               |
+| -------------- | -------------- | ---------------------- | ----------------------- |
+| **TData**      | Response 타입  | `Pick<Query, 'todos'>` | 필수 (권장)             |
+| **TVariables** | Variables 타입 | `GetTodosVariables`    | 선택 (변수 있으면 필수) |
 
 ### 실무 권장 패턴
 

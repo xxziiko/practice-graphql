@@ -42,11 +42,11 @@
 
 ### Atom vs Selector
 
-| 항목 | Atom | Selector |
-|------|------|----------|
-| **역할** | 기본 상태 저장 | 계산된 값 (파생 상태) |
-| **읽기** | ✅ 가능 | ✅ 가능 |
-| **쓰기** | ✅ 가능 | ❌ 불가능 (읽기 전용) |
+| 항목     | Atom            | Selector                |
+| -------- | --------------- | ----------------------- |
+| **역할** | 기본 상태 저장  | 계산된 값 (파생 상태)   |
+| **읽기** | ✅ 가능         | ✅ 가능                 |
+| **쓰기** | ✅ 가능         | ❌ 불가능 (읽기 전용)   |
 | **예시** | `filter: 'all'` | `filteredTodos: Todo[]` |
 
 ---
@@ -86,8 +86,8 @@ src/
 import { atom } from 'recoil';
 
 export const [atomName] = atom<[Type]>({
-  key: '[uniqueKey]',    // 전역적으로 유니크한 문자열
-  default: [초기값],      // 기본값
+  key: '[uniqueKey]', // 전역적으로 유니크한 문자열
+  default: [초기값], // 기본값
 });
 ```
 
@@ -101,7 +101,7 @@ import { atom } from 'recoil';
  * Todo 필터 상태
  */
 export const todoFilterState = atom<'all' | 'active' | 'completed'>({
-  key: 'todoFilterState',  // ✅ atom 이름과 동일
+  key: 'todoFilterState', // ✅ atom 이름과 동일
   default: 'all',
 });
 
@@ -118,17 +118,17 @@ export const searchKeywordState = atom<string>({
  */
 export const selectedTodoIdState = atom<string | null>({
   key: 'selectedTodoIdState',
-  default: null,  // ✅ nullable 타입
+  default: null, // ✅ nullable 타입
 });
 ```
 
 ### 네이밍 규칙
 
-| 패턴 | 예시 |
-|------|------|
-| **상태 + State** | `filterState`, `todoFilterState` |
-| **is + 상태 + State** | `isLoadingState`, `isOpenState` |
-| **has + 상태 + State** | `hasErrorState` |
+| 패턴                   | 예시                             |
+| ---------------------- | -------------------------------- |
+| **상태 + State**       | `filterState`, `todoFilterState` |
+| **is + 상태 + State**  | `isLoadingState`, `isOpenState`  |
+| **has + 상태 + State** | `hasErrorState`                  |
 
 ### 타입 정의
 
@@ -162,8 +162,8 @@ import { selector } from 'recoil';
 export const [selectorName] = selector<[ReturnType]>({
   key: '[uniqueKey]',
   get: ({ get }) => {
-    const value = get(someAtom);  // atom 읽기
-    return computedValue;         // 계산된 값 반환
+    const value = get(someAtom); // atom 읽기
+    return computedValue; // 계산된 값 반환
   },
 });
 ```
@@ -181,7 +181,7 @@ import { todoFilterState, searchKeywordState } from '../atoms/todoAtoms';
 export const filterTextState = selector<string>({
   key: 'filterTextState',
   get: ({ get }) => {
-    const filter = get(todoFilterState);  // ✅ atom 읽기
+    const filter = get(todoFilterState); // ✅ atom 읽기
 
     switch (filter) {
       case 'all':
@@ -215,15 +215,13 @@ export const filterStatsState = selector({
   get: ({ get }) => {
     const filter = get(todoFilterState);
     const keyword = get(searchKeywordState);
-    const isSearching = get(isSearchActiveState);  // ✅ selector도 읽기 가능
+    const isSearching = get(isSearchActiveState); // ✅ selector도 읽기 가능
 
     return {
       currentFilter: filter,
       searchKeyword: keyword,
       isSearching,
-      displayText: isSearching
-        ? `"${keyword}" 검색 결과`
-        : `${filter} 할일`,
+      displayText: isSearching ? `"${keyword}" 검색 결과` : `${filter} 할일`,
     };
   },
 });
@@ -241,12 +239,12 @@ export const filterStatsState = selector({
 
 ### Recoil Hooks 종류
 
-| Hook | 역할 | 반환값 | 사용 시점 |
-|------|------|--------|----------|
-| `useRecoilState` | 읽기 + 쓰기 | `[value, setValue]` | useState처럼 사용 |
-| `useRecoilValue` | 읽기만 | `value` | 값만 필요할 때 |
-| `useSetRecoilState` | 쓰기만 | `setValue` | setter만 필요할 때 |
-| `useResetRecoilState` | 초기화 | `reset` | 기본값으로 리셋 |
+| Hook                  | 역할        | 반환값              | 사용 시점          |
+| --------------------- | ----------- | ------------------- | ------------------ |
+| `useRecoilState`      | 읽기 + 쓰기 | `[value, setValue]` | useState처럼 사용  |
+| `useRecoilValue`      | 읽기만      | `value`             | 값만 필요할 때     |
+| `useSetRecoilState`   | 쓰기만      | `setValue`          | setter만 필요할 때 |
+| `useResetRecoilState` | 초기화      | `reset`             | 기본값으로 리셋    |
 
 ### ✅ 올바른 사용 예시
 
@@ -322,10 +320,10 @@ const setKeyword = useSetRecoilState(searchKeywordState);
 
 ### 역할 분리 (중요!)
 
-| 라이브러리 | 역할 | 예시 |
-|-----------|------|------|
-| **GraphQL** | 서버 데이터 관리 | todos 목록, user 정보 |
-| **Recoil** | 클라이언트 상태 관리 | 필터, 검색어, UI 상태 |
+| 라이브러리  | 역할                 | 예시                  |
+| ----------- | -------------------- | --------------------- |
+| **GraphQL** | 서버 데이터 관리     | todos 목록, user 정보 |
+| **Recoil**  | 클라이언트 상태 관리 | 필터, 검색어, UI 상태 |
 
 ### 실무 패턴
 
@@ -350,7 +348,7 @@ function TodoList() {
   // ═══════════════════════════════════════════════════════
   // 데이터 필터링 (Recoil 상태 기반)
   // ═══════════════════════════════════════════════════════
-  const filteredTodos = data?.todos.filter((todo) => {
+  const filteredTodos = data?.todos.filter(todo => {
     // 검색어 필터링
     if (searchKeyword.trim()) {
       if (!todo.title.toLowerCase().includes(searchKeyword.toLowerCase())) {
@@ -371,12 +369,14 @@ function TodoList() {
 ### 언제 Recoil을 쓰나?
 
 **✅ Recoil 사용:**
+
 - UI 상태 (모달 열림/닫힘, 탭 선택 등)
 - 필터, 정렬, 검색어
 - 선택된 아이템 ID
 - 로컬 설정 (테마, 언어 등)
 
 **❌ Recoil 사용 안 함:**
+
 - 서버 데이터 (todos, users, products)
 - API 응답 캐싱
 - 데이터 패칭
@@ -387,35 +387,35 @@ function TodoList() {
 
 ### Atom 네이밍
 
-| 패턴 | 예시 | 용도 |
-|------|------|------|
-| `[명사]State` | `todoFilterState`, `userIdState` | 기본 상태 |
-| `is[형용사]State` | `isLoadingState`, `isOpenState` | Boolean |
-| `has[명사]State` | `hasErrorState` | Boolean (소유 여부) |
-| `selected[명사]State` | `selectedTodoIdState` | 선택된 값 |
-| `current[명사]State` | `currentPageState` | 현재 값 |
+| 패턴                  | 예시                             | 용도                |
+| --------------------- | -------------------------------- | ------------------- |
+| `[명사]State`         | `todoFilterState`, `userIdState` | 기본 상태           |
+| `is[형용사]State`     | `isLoadingState`, `isOpenState`  | Boolean             |
+| `has[명사]State`      | `hasErrorState`                  | Boolean (소유 여부) |
+| `selected[명사]State` | `selectedTodoIdState`            | 선택된 값           |
+| `current[명사]State`  | `currentPageState`               | 현재 값             |
 
 ### Selector 네이밍
 
-| 패턴 | 예시 | 용도 |
-|------|------|------|
-| `[명사]State` | `filterTextState` | 계산된 값 |
-| `is[형용사]State` | `isSearchActiveState` | Boolean |
-| `filtered[명사]State` | `filteredTodosState` | 필터링된 데이터 |
-| `[명사]StatsState` | `todoStatsState` | 통계 정보 |
+| 패턴                  | 예시                  | 용도            |
+| --------------------- | --------------------- | --------------- |
+| `[명사]State`         | `filterTextState`     | 계산된 값       |
+| `is[형용사]State`     | `isSearchActiveState` | Boolean         |
+| `filtered[명사]State` | `filteredTodosState`  | 필터링된 데이터 |
+| `[명사]StatsState`    | `todoStatsState`      | 통계 정보       |
 
 ### Key 네이밍
 
 ```typescript
 // ✅ atom 이름과 key 동일하게
 export const todoFilterState = atom({
-  key: 'todoFilterState',  // ✅ 변수명과 같음
+  key: 'todoFilterState', // ✅ 변수명과 같음
   default: 'all',
 });
 
 // ❌ 다르게 하면 혼란
 export const todoFilterState = atom({
-  key: 'filter',  // ❌ 변수명과 다름
+  key: 'filter', // ❌ 변수명과 다름
   default: 'all',
 });
 ```
@@ -671,13 +671,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // ✅ 좋은 예: 명확한 기본값
 const filterState = atom({
   key: 'filterState',
-  default: 'all' as const,  // 타입 안전
+  default: 'all' as const, // 타입 안전
 });
 
 // ❌ 나쁜 예: undefined 기본값
 const filterState = atom({
   key: 'filterState',
-  default: undefined,  // 타입 불안정
+  default: undefined, // 타입 불안정
 });
 ```
 
@@ -698,7 +698,7 @@ const doubleCountState = selector({
   key: 'doubleCountState',
   get: ({ get }) => {
     const count = get(countState);
-    console.log(count);  // ❌ 부수 효과!
+    console.log(count); // ❌ 부수 효과!
     return count * 2;
   },
 });

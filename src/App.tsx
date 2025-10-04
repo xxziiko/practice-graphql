@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import TodoListWithCodegen from './components/TodoListWithCodegen';
+import TodoListWithRecoil from './components/TodoListWithRecoil';
 import AddTodoWithCodegen from './components/AddTodoWithCodegen';
 
 const client = new ApolloClient({
@@ -15,7 +15,7 @@ function App() {
           🚀 GraphQL TODO App (Code Generator)
         </h1>
         <AddTodoWithCodegen />
-        <TodoListWithCodegen />
+        <TodoListWithRecoil />
       </div>
     </ApolloProvider>
   );

@@ -26,14 +26,15 @@ const config: CodegenConfig = {
   schema: 'https://api.example.com/graphql', // API 엔드포인트
   documents: './src/**/*.ts',
   config: {
-    preResolveTypes: true,        // ✅ 타입 중복 제거
-    namingConvention: 'keep',     // ✅ 스키마 이름 유지
-    omitOperationSuffix: true,    // ✅ Query/Mutation 접미사 제거
+    preResolveTypes: true, // ✅ 타입 중복 제거
+    namingConvention: 'keep', // ✅ 스키마 이름 유지
+    omitOperationSuffix: true, // ✅ Query/Mutation 접미사 제거
     avoidOptionals: {
-      field: true,                // ✅ Optional → Nullable
+      field: true, // ✅ Optional → Nullable
     },
-    skipTypeNameForRoot: true,    // ✅ Root __typename 제거
-    scalars: {                    // ✅ 커스텀 Scalar 매핑
+    skipTypeNameForRoot: true, // ✅ Root __typename 제거
+    scalars: {
+      // ✅ 커스텀 Scalar 매핑
       Long: 'number',
       DateTime: 'string',
     },
@@ -61,13 +62,13 @@ export default config;
 
 ### 주요 설정 설명
 
-| 옵션 | 역할 | 예시 |
-|------|------|------|
-| `preResolveTypes` | 중복 타입 사전 해결 | 타입 재사용 최적화 |
+| 옵션                       | 역할                    | 예시                          |
+| -------------------------- | ----------------------- | ----------------------------- |
+| `preResolveTypes`          | 중복 타입 사전 해결     | 타입 재사용 최적화            |
 | `namingConvention: 'keep'` | 스키마 이름 그대로 유지 | `UserProfile` → `UserProfile` |
-| `omitOperationSuffix` | 접미사 제거 | `GetUserQuery` → `GetUser` |
-| `avoidOptionals` | Nullable 타입 처리 | `field?` → `field \| null` |
-| `skipTypeNameForRoot` | Root 타입 정리 | `__typename` 제거 |
+| `omitOperationSuffix`      | 접미사 제거             | `GetUserQuery` → `GetUser`    |
+| `avoidOptionals`           | Nullable 타입 처리      | `field?` → `field \| null`    |
+| `skipTypeNameForRoot`      | Root 타입 정리          | `__typename` 제거             |
 
 ---
 
@@ -203,6 +204,7 @@ function TodoList() {
 ```
 
 **왜 Pick을 사용하나?**
+
 - Query 전체가 아닌 **특정 필드만 선택**
 - 어떤 GraphQL 필드를 사용하는지 **명확히 표현**
 - 코드 **가독성 향상**
@@ -215,8 +217,8 @@ function TodoList() {
 import { useMutation } from '@apollo/client';
 import { ADD_TODO } from '../graphql/mutations';
 import type {
-  AddTodo,           // ✅ omitOperationSuffix로 생성됨
-  AddTodoVariables
+  AddTodo, // ✅ omitOperationSuffix로 생성됨
+  AddTodoVariables,
 } from '../graphql/__generated__/graphqlType';
 
 function TodoForm() {
@@ -225,7 +227,7 @@ function TodoForm() {
 
   const handleSubmit = async (title: string) => {
     await addTodo({
-      variables: { title }  // 타입 안전하게 체크됨
+      variables: { title }, // 타입 안전하게 체크됨
     });
   };
 }
@@ -250,15 +252,15 @@ const { data } = useQuery<{ todos: Todo[] }>(GET_TODOS);
 
 ### Operation 이름 작성 규칙
 
-| 타입 | 패턴 | 예시 |
-|------|------|------|
-| **Query - 단일 조회** | `Get` + 리소스 | `GetUser`, `GetPost` |
-| **Query - 목록 조회** | `Get` + 리소스 복수형 | `GetUsers`, `GetTodos` |
-| **Query - 검색** | `Search` + 리소스 | `SearchProducts` |
-| **Mutation - 생성** | `Add` / `Create` | `AddTodo`, `CreateUser` |
-| **Mutation - 수정** | `Update` | `UpdateUser` |
-| **Mutation - 삭제** | `Delete` / `Remove` | `DeleteTodo` |
-| **Mutation - 토글** | `Toggle` | `ToggleTodo` |
+| 타입                  | 패턴                  | 예시                    |
+| --------------------- | --------------------- | ----------------------- |
+| **Query - 단일 조회** | `Get` + 리소스        | `GetUser`, `GetPost`    |
+| **Query - 목록 조회** | `Get` + 리소스 복수형 | `GetUsers`, `GetTodos`  |
+| **Query - 검색**      | `Search` + 리소스     | `SearchProducts`        |
+| **Mutation - 생성**   | `Add` / `Create`      | `AddTodo`, `CreateUser` |
+| **Mutation - 수정**   | `Update`              | `UpdateUser`            |
+| **Mutation - 삭제**   | `Delete` / `Remove`   | `DeleteTodo`            |
+| **Mutation - 토글**   | `Toggle`              | `ToggleTodo`            |
 
 ### 변수명 규칙
 
@@ -314,14 +316,15 @@ pnpm codegen
 ```
 
 생성된 타입:
+
 ```typescript
 // src/graphql/__generated__/graphqlType.ts (자동 생성)
 export type GetTodos = {
   todos: Array<{
     id: string;
     title: string;
-    completed: boolean
-  }>
+    completed: boolean;
+  }>;
 };
 ```
 

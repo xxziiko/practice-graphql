@@ -12,14 +12,18 @@ import type {
  * - TData: 응답 데이터의 타입 (Pick<Query, 'fieldName'>)
  * - TVariables: 요청 변수의 타입 (GetTodoVariables)
  */
-export default function TodoDetailWithVariables({ todoId }: { todoId: string }) {
+export default function TodoDetailWithVariables({
+  todoId,
+}: {
+  todoId: string;
+}) {
   // 실무 패턴: 두 개의 제네릭 타입 모두 명시
   const { loading, error, data } = useQuery<
-    Pick<Query, 'todo'>,     // 👈 첫 번째: Response 타입
-    GetTodoVariables         // 👈 두 번째: Variables 타입
+    Pick<Query, 'todo'>, // 👈 첫 번째: Response 타입
+    GetTodoVariables // 👈 두 번째: Variables 타입
   >(GET_TODO, {
     variables: {
-      id: todoId,            // ✅ 타입 체크됨
+      id: todoId, // ✅ 타입 체크됨
     },
   });
 
@@ -47,8 +51,7 @@ export default function TodoDetailWithVariables({ todoId }: { todoId: string }) 
           <strong>제목:</strong> {todo.title}
         </div>
         <div style={{ marginBottom: '10px' }}>
-          <strong>완료 여부:</strong>{' '}
-          {todo.completed ? '✅ 완료' : '⬜ 미완료'}
+          <strong>완료 여부:</strong> {todo.completed ? '✅ 완료' : '⬜ 미완료'}
         </div>
         <div style={{ marginBottom: '10px' }}>
           <strong>생성일:</strong> {todo.createdAt}
@@ -58,10 +61,17 @@ export default function TodoDetailWithVariables({ todoId }: { todoId: string }) 
         </div>
       </div>
 
-      <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
+      <div
+        style={{
+          marginTop: '20px',
+          padding: '15px',
+          backgroundColor: '#e3f2fd',
+          borderRadius: '4px',
+        }}
+      >
         <h3>💡 실무 패턴 설명</h3>
         <pre style={{ fontSize: '12px', overflow: 'auto' }}>
-{`useQuery<
+          {`useQuery<
   Pick<Query, 'todo'>,  // Response 타입
   GetTodoVariables      // Variables 타입
 >(GET_TODO, {
@@ -69,9 +79,16 @@ export default function TodoDetailWithVariables({ todoId }: { todoId: string }) 
 })`}
         </pre>
         <ul style={{ fontSize: '14px', marginTop: '10px' }}>
-          <li><strong>첫 번째 제네릭:</strong> 응답 데이터 타입 (Pick으로 필드 선택)</li>
-          <li><strong>두 번째 제네릭:</strong> 요청 변수 타입 (Codegen 자동 생성)</li>
-          <li><strong>variables:</strong> 타입 안전하게 변수 전달</li>
+          <li>
+            <strong>첫 번째 제네릭:</strong> 응답 데이터 타입 (Pick으로 필드
+            선택)
+          </li>
+          <li>
+            <strong>두 번째 제네릭:</strong> 요청 변수 타입 (Codegen 자동 생성)
+          </li>
+          <li>
+            <strong>variables:</strong> 타입 안전하게 변수 전달
+          </li>
         </ul>
       </div>
     </div>

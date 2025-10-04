@@ -10,7 +10,7 @@ import { atom } from 'recoil';
  */
 export const todoFilterState = atom<'all' | 'active' | 'completed'>({
   key: 'todoFilterState', // ✅ 전역적으로 유니크한 key
-  default: 'all',         // ✅ 기본값
+  default: 'all', // ✅ 기본값
 });
 
 /**

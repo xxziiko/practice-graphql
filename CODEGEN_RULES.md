@@ -60,7 +60,7 @@ type Todo {
 
 ```typescript
 export type Todo = {
-  __typename?: 'Todo';      // skipTypeNameForRoot: false면 생성
+  __typename?: 'Todo'; // skipTypeNameForRoot: false면 생성
   completed: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
@@ -71,12 +71,12 @@ export type Todo = {
 
 ### 생성 규칙
 
-| 항목 | 규칙 |
-|------|------|
-| **타입명** | GraphQL 타입명 그대로 사용 (`namingConvention: 'keep'`) |
-| **필드 순서** | 알파벳 순서로 자동 정렬 |
-| **Scalar 매핑** | `Scalars[타입]['output']` 형태 |
-| **`__typename`** | `skipTypeNameForRoot: false`면 포함 |
+| 항목             | 규칙                                                    |
+| ---------------- | ------------------------------------------------------- |
+| **타입명**       | GraphQL 타입명 그대로 사용 (`namingConvention: 'keep'`) |
+| **필드 순서**    | 알파벳 순서로 자동 정렬                                 |
+| **Scalar 매핑**  | `Scalars[타입]['output']` 형태                          |
+| **`__typename`** | `skipTypeNameForRoot: false`면 포함                     |
 
 ---
 
@@ -102,13 +102,13 @@ type Mutation {
 ```typescript
 export type Query = {
   __typename?: 'Query';
-  todos: Array<Todo>;      // [Todo!]! → Array<Todo>
-  user: User | null;       // User → User | null
+  todos: Array<Todo>; // [Todo!]! → Array<Todo>
+  user: User | null; // User → User | null
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addTodo: Todo;           // Todo! → Todo
+  addTodo: Todo; // Todo! → Todo
   toggleTodo: Todo;
   deleteTodo: Scalars['ID']['output'];
 };
@@ -116,12 +116,12 @@ export type Mutation = {
 
 ### 변환 규칙
 
-| GraphQL | TypeScript |
-|---------|------------|
-| `[Todo!]!` | `Array<Todo>` |
-| `Todo!` | `Todo` |
-| `Todo` | `Todo \| null` (nullable) |
-| `ID!` | `Scalars['ID']['output']` |
+| GraphQL    | TypeScript                |
+| ---------- | ------------------------- |
+| `[Todo!]!` | `Array<Todo>`             |
+| `Todo!`    | `Todo`                    |
+| `Todo`     | `Todo \| null` (nullable) |
+| `ID!`      | `Scalars['ID']['output']` |
 
 **중요**: Non-null (`!`)은 제거됨 (`avoidOptionals: { field: true }` 설정 때문)
 
@@ -142,7 +142,7 @@ type Mutation {
 
 ```typescript
 export type MutationaddTodoArgs = {
-  title: Scalars['String']['input'];  // input 방향
+  title: Scalars['String']['input']; // input 방향
 };
 
 export type MutationupdateTodoArgs = {
@@ -158,6 +158,7 @@ Mutation + [필드명] + Args
 ```
 
 **예시:**
+
 - `addTodo` → `MutationaddTodoArgs`
 - `updateTodo` → `MutationupdateTodoArgs`
 - `deleteTodo` → `MutationdeleteTodoArgs`
@@ -190,16 +191,18 @@ export type GetTodosVariables = Exact<{ [key: string]: never }>;
 ```
 
 **규칙:**
+
 - 변수가 없으면 `{ [key: string]: never }` (빈 객체)
 - 변수가 있으면 해당 변수 타입 생성
 
 ### Output: Response 타입
 
 ```typescript
-export type GetTodos = {  // ✅ omitOperationSuffix: true
+export type GetTodos = {
+  // ✅ omitOperationSuffix: true
   todos: Array<{
     __typename?: 'Todo';
-    id: string;            // Scalars['ID'] → string 변환
+    id: string; // Scalars['ID'] → string 변환
     title: string;
     completed: boolean;
   }>;
@@ -208,9 +211,9 @@ export type GetTodos = {  // ✅ omitOperationSuffix: true
 
 ### 네이밍 규칙
 
-| 항목 | 규칙 | 예시 |
-|------|------|------|
-| **Response 타입** | Operation 이름 그대로 | `GetTodos` |
+| 항목               | 규칙                         | 예시                |
+| ------------------ | ---------------------------- | ------------------- |
+| **Response 타입**  | Operation 이름 그대로        | `GetTodos`          |
 | **Variables 타입** | Operation 이름 + `Variables` | `GetTodosVariables` |
 
 **중요**: `omitOperationSuffix: true`이므로 `Query`/`Mutation` 접미사 제거
@@ -238,18 +241,20 @@ export const ADD_TODO = gql`
 
 ```typescript
 export type AddTodoVariables = Exact<{
-  title: Scalars['String']['input'];  // ✅ input 방향
+  title: Scalars['String']['input']; // ✅ input 방향
 }>;
 ```
 
 **규칙:**
+
 - 변수가 있으면 `Exact<{...}>` 래퍼로 감쌈
 - Input은 `Scalars[타입]['input']` 사용
 
 ### Output: Response 타입
 
 ```typescript
-export type AddTodo = {  // ✅ omitOperationSuffix: true
+export type AddTodo = {
+  // ✅ omitOperationSuffix: true
   addTodo: {
     __typename?: 'Todo';
     id: string;
@@ -311,15 +316,15 @@ Optional (`?`) vs Nullable (`| null`) 선택
 ```typescript
 // avoidOptionals: { field: false } (기본값)
 export type Todo = {
-  id?: string;        // optional
+  id?: string; // optional
   title?: string;
-}
+};
 
 // avoidOptionals: { field: true } ✅ (실무 설정)
 export type Todo = {
-  id: string;         // required (nullable 아님)
+  id: string; // required (nullable 아님)
   title: string;
-}
+};
 ```
 
 **실무 권장**: `{ field: true }` (명확한 타입)
@@ -341,7 +346,7 @@ export type GetTodos = {
 
 export type AddTodo = {
   addTodo: {
-    id: string;      // 중복 정의
+    id: string; // 중복 정의
     title: string;
   };
 };
@@ -353,11 +358,11 @@ export type TodoFragment = {
 };
 
 export type GetTodos = {
-  todos: Array<TodoFragment>;  // ✅ 타입 재사용
+  todos: Array<TodoFragment>; // ✅ 타입 재사용
 };
 
 export type AddTodo = {
-  addTodo: TodoFragment;       // ✅ 타입 재사용
+  addTodo: TodoFragment; // ✅ 타입 재사용
 };
 ```
 
@@ -372,7 +377,7 @@ Root 타입(`Query`, `Mutation`)에서 `__typename` 제거
 ```typescript
 // skipTypeNameForRoot: false (기본값)
 export type Query = {
-  __typename?: 'Query';  // 포함
+  __typename?: 'Query'; // 포함
   todos: Array<Todo>;
 };
 
@@ -449,8 +454,8 @@ type Todo {
 
 query GetTodos {
   todos {
-    id         # ✅ 타입에 포함
-    title      # ✅ 타입에 포함
+    id # ✅ 타입에 포함
+    title # ✅ 타입에 포함
     # completed는 요청 안 함 ❌ 타입에 없음
     # createdAt는 요청 안 함 ❌ 타입에 없음
   }
@@ -458,11 +463,12 @@ query GetTodos {
 ```
 
 생성된 타입:
+
 ```typescript
 export type GetTodos = {
   todos: Array<{
-    id: string;      // ✅
-    title: string;   // ✅
+    id: string; // ✅
+    title: string; // ✅
     // completed, createdAt, updatedAt 없음 ❌
   }>;
 };
@@ -485,6 +491,7 @@ scalars: {
 ```
 
 **실무에서 자주 사용하는 매핑:**
+
 - `DateTime` → `string` (ISO 8601 문자열)
 - `Long` → `number` (큰 숫자)
 - `JSON` → `Record<string, any>` (JSON 객체)
@@ -501,15 +508,16 @@ export type Scalars = {
 ```
 
 **사용 예시:**
+
 ```typescript
 // Variables (input)
 export type AddTodoVariables = {
-  title: Scalars['String']['input'];  // input 방향
+  title: Scalars['String']['input']; // input 방향
 };
 
 // Response (output)
 export type Todo = {
-  id: Scalars['ID']['output'];        // output 방향
+  id: Scalars['ID']['output']; // output 방향
 };
 ```
 
@@ -539,15 +547,17 @@ const GET_TODOS = gql`
 ```
 
 생성된 타입:
+
 ```typescript
-export type TodoFieldsFragment = {  // Fragment 타입 자동 생성
+export type TodoFieldsFragment = {
+  // Fragment 타입 자동 생성
   id: string;
   title: string;
   completed: boolean;
 };
 
 export type GetTodos = {
-  todos: Array<TodoFieldsFragment>;  // Fragment 타입 재사용
+  todos: Array<TodoFieldsFragment>; // Fragment 타입 재사용
 };
 ```
 
